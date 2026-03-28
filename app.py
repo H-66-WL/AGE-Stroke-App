@@ -146,6 +146,7 @@ if input_data is not None and predict_button:
             st.subheader(f"样本 {i+1}")
             risk_prob = probabilities[i][1]
 
+            # 定义风险等级文字
             if risk_prob >= 0.7:
                 risk_level = "高风险"
                 color = "red"
@@ -170,9 +171,8 @@ if input_data is not None and predict_button:
                     st.write(f"{gene}: {value:.3f}")
             st.markdown("---")
 
-            # 保存记录
+            # 保存记录（使用北京时区）
             from datetime import datetime, timezone, timedelta
-            # 北京时间 = UTC + 8
             beijing_tz = timezone(timedelta(hours=8))
             record = {
                 '时间': datetime.now(beijing_tz).strftime("%Y-%m-%d %H:%M:%S"),
@@ -180,10 +180,12 @@ if input_data is not None and predict_button:
                 'PTGS2': X_input.iloc[i]['PTGS2'],
                 'LMNB1': X_input.iloc[i]['LMNB1'],
                 'CXCL1': X_input.iloc[i]['CXCL1'],
-                '风险等级': f"{risk_prob:.2%} ({risk_text})",
+                '风险等级': f"{risk_prob:.2%} ({risk_level})",   # 使用 risk_level
                 '预测类别': 'IS患者' if predictions[i]==1 else '健康对照'
             }
             st.session_state.prediction_records.append(record)
+    else:
+        st.error(f"上传的文件必须包含以下列：{feature_cols}")
 
 # ===== 模型验证与科学依据 =====
 st.markdown("---")
