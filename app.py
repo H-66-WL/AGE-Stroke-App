@@ -98,10 +98,10 @@ with st.sidebar.expander("📜 预测记录", expanded=False):
         records_df = pd.DataFrame(st.session_state.prediction_records)
         # 添加序号列（从1开始）
         records_df.insert(0, '序号', range(1, len(records_df)+1))
-        # 重新排列列顺序：序号、时间、FOS、PTGS2、LMNB1、CXCL1、风险等级、预测类别
+        # 调整列顺序
         cols_order = ['序号', '时间', 'FOS', 'PTGS2', 'LMNB1', 'CXCL1', '风险等级', '预测类别']
         records_df = records_df[cols_order]
-        # 显示表格（隐藏默认索引）
+        # 显示表格，隐藏默认索引
         st.dataframe(records_df, use_container_width=True, hide_index=True)
         # 下载按钮
         csv = records_df.to_csv(index=False).encode('utf-8')
@@ -180,9 +180,9 @@ if input_data is not None and predict_button:
                 'PTGS2': X_input.iloc[i]['PTGS2'],
                 'LMNB1': X_input.iloc[i]['LMNB1'],
                 'CXCL1': X_input.iloc[i]['CXCL1'],
-                '风险等级': f"{risk_prob:.2%} ({risk_level})",   # 使用 risk_level
+                '风险概率': risk_prob,
                 '预测类别': 'IS患者' if predictions[i]==1 else '健康对照'
-            }
+             }
             st.session_state.prediction_records.append(record)
     else:
         st.error(f"上传的文件必须包含以下列：{feature_cols}")
