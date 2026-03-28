@@ -96,7 +96,14 @@ st.sidebar.markdown("""
 with st.sidebar.expander("📜 预测记录", expanded=False):
     if st.session_state.prediction_records:
         records_df = pd.DataFrame(st.session_state.prediction_records)
-        st.dataframe(records_df, use_container_width=True)
+        # 添加序号列（从1开始）
+        records_df.insert(0, '序号', range(1, len(records_df)+1))
+        # 重新排列列顺序：序号、时间、FOS、PTGS2、LMNB1、CXCL1、风险等级、预测类别
+        cols_order = ['序号', '时间', 'FOS', 'PTGS2', 'LMNB1', 'CXCL1', '风险等级', '预测类别']
+        records_df = records_df[cols_order]
+        # 显示表格（隐藏默认索引）
+        st.dataframe(records_df, use_container_width=True, hide_index=True)
+        # 下载按钮
         csv = records_df.to_csv(index=False).encode('utf-8')
         st.download_button(
             label="⬇️ 下载记录 (CSV)",
@@ -173,7 +180,7 @@ if input_data is not None and predict_button:
                 'PTGS2': X_input.iloc[i]['PTGS2'],
                 'LMNB1': X_input.iloc[i]['LMNB1'],
                 'CXCL1': X_input.iloc[i]['CXCL1'],
-                '风险概率': risk_prob,
+                '风险等级': f"{risk_prob:.2%} ({risk_text})",
                 '预测类别': 'IS患者' if predictions[i]==1 else '健康对照'
             }
             st.session_state.prediction_records.append(record)
