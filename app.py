@@ -184,8 +184,6 @@ if input_data is not None and predict_button:
                 '预测类别': 'IS患者' if predictions[i]==1 else '健康对照'
             }
             st.session_state.prediction_records.append(record)
-    else:
-        st.error(f"上传的文件必须包含以下列：{feature_cols}")
 
 # ===== 模型验证与科学依据 =====
 st.markdown("---")
