@@ -4,6 +4,8 @@ import numpy as np
 import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
+from datetime import datetime  # 新增
+
 
 # ===== 页面配置 =====
 st.set_page_config(
@@ -11,6 +13,9 @@ st.set_page_config(
     page_icon="🧠",
     layout="wide"
 )
+# 初始化记录列表
+if 'prediction_records' not in st.session_state:
+    st.session_state.prediction_records = []
 
 # ===== 加载 NB 模型 =====
 @st.cache_resource
@@ -87,6 +92,23 @@ st.sidebar.markdown("""
 - 支持上传 CSV 文件批量预测  
 - 下方为模型验证图表及免疫浸润细胞分析
 """)
+# ===== 预测记录浏览 =====
+with st.sidebar.expander("📜 预测记录", expanded=False):
+    if st.session_state.prediction_records:
+        records_df = pd.DataFrame(st.session_state.prediction_records)
+        st.dataframe(records_df, use_container_width=True)
+        csv = records_df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="⬇️ 下载记录 (CSV)",
+            data=csv,
+            file_name="prediction_records.csv",
+            mime="text/csv"
+        )
+        if st.button("🗑️ 清空本次记录"):
+            st.session_state.prediction_records = []
+            st.rerun()
+    else:
+        st.info("暂无预测记录")
 
 # ===== 模板下载 =====
 st.sidebar.markdown("---")
@@ -140,6 +162,18 @@ if input_data is not None and predict_button:
                 for gene, value in genes.items():
                     st.write(f"{gene}: {value:.3f}")
             st.markdown("---")
+
+            # 保存记录
+            record = {
+                '时间': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'FOS': X_input.iloc[i]['FOS'],
+                'PTGS2': X_input.iloc[i]['PTGS2'],
+                'LMNB1': X_input.iloc[i]['LMNB1'],
+                'CXCL1': X_input.iloc[i]['CXCL1'],
+                '风险概率': risk_prob,
+                '预测类别': 'IS患者' if predictions[i]==1 else '健康对照'
+            }
+            st.session_state.prediction_records.append(record)
     else:
         st.error(f"上传的文件必须包含以下列：{feature_cols}")
 
