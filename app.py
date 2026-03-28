@@ -162,19 +162,18 @@ if input_data is not None and predict_button:
                     st.write(f"{gene}: {value:.3f}")
             st.markdown("---")
 
-from datetime import datetime, timezone, timedelta
-# 北京时间 = UTC + 8
-beijing_tz = timezone(timedelta(hours=8))
-record = {
-        '时间': datetime.now(beijing_tz).strftime("%Y-%m-%d %H:%M:%S"),
-        'FOS': X_input.iloc[i]['FOS'],
-        'PTGS2': X_input.iloc[i]['PTGS2'],
-        'LMNB1': X_input.iloc[i]['LMNB1'],
-        'CXCL1': X_input.iloc[i]['CXCL1'],
-        '风险概率': risk_prob,
-        '预测类别': 'IS患者' if predictions[i]==1 else '健康对照'
+            # 保存记录（使用北京时间，字段为风险概率）
+            beijing_tz = timezone(timedelta(hours=8))
+            record = {
+                '时间': datetime.now(beijing_tz).strftime("%Y-%m-%d %H:%M:%S"),
+                'FOS': X_input.iloc[i]['FOS'],
+                'PTGS2': X_input.iloc[i]['PTGS2'],
+                'LMNB1': X_input.iloc[i]['LMNB1'],
+                'CXCL1': X_input.iloc[i]['CXCL1'],
+                '风险概率': risk_prob,  # 只保存数值
+                '预测类别': 'IS患者' if predictions[i]==1 else '健康对照'
             }
- st.session_state.prediction_records.append(record)
+            st.session_state.prediction_records.append(record)
     else:
         st.error(f"上传的文件必须包含以下列：{feature_cols}")
 
