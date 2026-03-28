@@ -164,8 +164,11 @@ if input_data is not None and predict_button:
             st.markdown("---")
 
             # 保存记录
+            from datetime import datetime, timezone, timedelta
+            # 北京时间 = UTC + 8
+            beijing_tz = timezone(timedelta(hours=8))
             record = {
-                '时间': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                '时间': datetime.now(beijing_tz).strftime("%Y-%m-%d %H:%M:%S"),
                 'FOS': X_input.iloc[i]['FOS'],
                 'PTGS2': X_input.iloc[i]['PTGS2'],
                 'LMNB1': X_input.iloc[i]['LMNB1'],
